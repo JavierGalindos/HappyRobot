@@ -2,13 +2,12 @@ import json
 import os
 from glob import glob as file_glob
 
-import boto3
-
 from app.config import settings
+from app.services.s3 import _get_s3_client, load_loads_data
 
 
 def _load_s3_call_logs() -> list[dict]:
-    s3 = boto3.client("s3")
+    s3 = _get_s3_client()
     logs = []
     paginator = s3.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=settings.s3_bucket, Prefix=settings.call_logs_prefix):
@@ -95,7 +94,7 @@ def _compute_metrics_from_logs(logs: list[dict]) -> dict:
         date_counts[date_key] = date_counts.get(date_key, 0) + 1
 
     booked = outcome_counts.get("booked", 0)
-    booking_rate = (booked / total * 100) if total > 0 else 0.0
+    booking_rate = booked / total * 100
 
     top_lanes = sorted(lane_counts.items(), key=lambda x: x[1], reverse=True)[:10]
     top_lanes_list = [{"lane": lane, "count": count} for lane, count in top_lanes]
@@ -111,6 +110,6 @@ def _compute_metrics_from_logs(logs: list[dict]) -> dict:
         "avg_discount_pct": round(sum(discounts) / len(discounts), 1) if discounts else 0.0,
         "sentiment_distribution": sentiment_counts,
         "top_lanes": top_lanes_list,
-        "loads_utilization": {"total_loads": 15, "booked": len(load_ids_booked)},
+        "loads_utilization": {"total_loads": len(load_loads_data()), "booked": len(load_ids_booked)},
         "call_volume_over_time": call_volume_list,
     }

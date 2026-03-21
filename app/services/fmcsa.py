@@ -5,8 +5,11 @@ from app.config import settings
 FMCSA_BASE_URL = "https://mobile.fmcsa.dot.gov/qc/services/carriers"
 
 
-async def _mock_verify(mc_number: str) -> dict:
-    clean_mc = mc_number.strip().replace("MC", "").replace("-", "").replace(" ", "")
+def _clean_mc_number(mc_number: str) -> str:
+    return mc_number.strip().upper().replace("MC", "").replace("-", "").replace(" ", "")
+
+
+async def _mock_verify(clean_mc: str) -> dict:
     if clean_mc.isdigit() and len(clean_mc) == 6:
         return {
             "legal_name": f"Mock Carrier {clean_mc}",
@@ -27,10 +30,10 @@ async def _mock_verify(mc_number: str) -> dict:
 
 
 async def verify_carrier(mc_number: str) -> dict:
-    clean_mc = mc_number.strip().upper().replace("MC", "").replace("-", "").strip()
+    clean_mc = _clean_mc_number(mc_number)
 
     if not settings.fmcsa_api_key:
-        return await _mock_verify(mc_number)
+        return await _mock_verify(clean_mc)
 
     url = f"{FMCSA_BASE_URL}/{clean_mc}"
     params = {"webKey": settings.fmcsa_api_key}
