@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "9000:8080"
+    environment:
+      - HR_ENVIRONMENT=local
+      - HR_FMCSA_API_KEY=${HR_FMCSA_API_KEY:-}
+      - HR_API_KEY=${HR_API_KEY:-}
+    volumes:
+      - ./data:/var/task/data
