@@ -27,7 +27,7 @@ cdk bootstrap
 
 # Deploy
 echo "Deploying stack..."
-cdk deploy --require-approval never --outputs-file "$PROJECT_DIR/cdk-outputs.json"
+cdk deploy --all --require-approval never --outputs-file "$PROJECT_DIR/cdk-outputs.json"
 
 echo ""
 echo "=== Deployment complete ==="

@@ -73,6 +73,9 @@ export class InfraStack extends cdk.Stack {
     api.root.addProxy({
       defaultIntegration: lambdaIntegration,
       anyMethod: true,
+      defaultMethodOptions: {
+        apiKeyRequired: true,
+      },
     });
 
     // API Key + Usage Plan
