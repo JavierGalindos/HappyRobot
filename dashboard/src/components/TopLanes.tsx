@@ -17,7 +17,7 @@ export function TopLanes({ data }: { data: Array<{ lane: string; count: number }
   return (
     <Card delay={0.5} className="w-full flex flex-col">
       <CardHeader title="Top Lanes" subtitle="Most requested origin-destination pairs" />
-      <div className="px-4 pb-4 pt-2 flex-1">
+      <div className="card-body-chart flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}

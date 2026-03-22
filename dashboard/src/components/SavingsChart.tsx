@@ -11,19 +11,19 @@ import { Card, CardHeader } from './Card'
 import { formatDate, formatCurrency, ChartTooltip } from '../utils'
 
 interface Props {
-  data: Array<{ date: string; cost: number }>
+  data: Array<{ date: string; savings: number }>
 }
 
-export function CostOverTimeChart({ data }: Props) {
+export function SavingsChart({ data }: Props) {
   return (
-    <Card delay={0.35} className="overflow-hidden">
-      <CardHeader title="Carrier Payments" subtitle="Daily spend on booked loads" />
-      <div className="px-4 pb-4 pt-2">
+    <Card delay={0.4} className="overflow-hidden">
+      <CardHeader title="Cumulative Savings" subtitle="Total saved vs. loadboard rates over time" />
+      <div className="card-body-chart">
         <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <defs>
-              <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+              <linearGradient id="savingsGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
             </defs>
@@ -46,16 +46,16 @@ export function CostOverTimeChart({ data }: Props) {
                 <ChartTooltip
                   labelFormatter={formatDate}
                   valueFormatter={formatCurrency}
-                  valueSuffix="paid"
+                  valueSuffix="saved"
                 />
               }
             />
             <Area
               type="monotone"
-              dataKey="cost"
+              dataKey="savings"
               stroke="#10b981"
               strokeWidth={2.5}
-              fill="url(#costGrad)"
+              fill="url(#savingsGrad)"
               dot={false}
               activeDot={{ r: 5, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
             />

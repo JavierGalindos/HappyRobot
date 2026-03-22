@@ -20,47 +20,45 @@ export function RecentBookingsTable({ data }: Props) {
     <Card delay={0.5} className="overflow-hidden">
       <CardHeader title="Recent Bookings" subtitle="Latest loads booked by carriers" />
       <div className="px-6 pb-5 overflow-x-auto">
-        <table className="w-full text-left">
+        <table className="table">
           <thead>
-            <tr className="border-b border-surface-200">
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 pr-4">Date</th>
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 pr-4">Load</th>
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 pr-4">Carrier</th>
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 pr-4">Lane</th>
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 pr-4 text-right">Price</th>
-              <th className="text-[10px] font-mono font-medium text-surface-500 uppercase tracking-wider py-2.5 text-right">Rounds</th>
+            <tr className="table-head-row">
+              <th className="table-th">Date</th>
+              <th className="table-th">Load</th>
+              <th className="table-th">Carrier</th>
+              <th className="table-th">Lane</th>
+              <th className="table-th--right">Price</th>
+              <th className="table-th--right-last">Rounds</th>
             </tr>
           </thead>
           <tbody>
             {data.map((b, i) => (
               <tr
                 key={`${b.load_id}-${b.timestamp}-${i}`}
-                className="border-b border-surface-100 last:border-0 hover:bg-surface-100/50 transition-colors"
+                className="table-row"
               >
-                <td className="py-2.5 pr-4">
-                  <p className="text-xs font-medium text-surface-800">{formatTimestamp(b.timestamp)}</p>
-                  <p className="text-[10px] text-surface-400 font-mono">{formatTime(b.timestamp)}</p>
+                <td className="table-cell">
+                  <p className="table-date">{formatTimestamp(b.timestamp)}</p>
+                  <p className="table-time">{formatTime(b.timestamp)}</p>
                 </td>
-                <td className="py-2.5 pr-4">
-                  <span className="text-xs font-mono font-medium text-brand-600">{b.load_id}</span>
+                <td className="table-cell">
+                  <span className="table-load-id">{b.load_id}</span>
                 </td>
-                <td className="py-2.5 pr-4">
-                  <span className="text-xs text-surface-700">{b.carrier_name}</span>
+                <td className="table-cell">
+                  <span className="table-carrier">{b.carrier_name}</span>
                 </td>
-                <td className="py-2.5 pr-4">
-                  <span className="text-xs text-surface-600">
+                <td className="table-cell">
+                  <span className="table-lane">
                     {b.origin.split(',')[0]} → {b.destination.split(',')[0]}
                   </span>
                 </td>
-                <td className="py-2.5 pr-4 text-right">
-                  <span className="text-xs font-mono font-medium text-surface-900">
+                <td className="table-cell--right">
+                  <span className="table-price">
                     ${b.agreed_price?.toLocaleString('en-US', { minimumFractionDigits: 0 })}
                   </span>
                 </td>
-                <td className="py-2.5 text-right">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-100 text-[10px] font-mono font-medium text-surface-600">
-                    {b.negotiation_rounds}
-                  </span>
+                <td className="table-cell--right-last">
+                  <span className="table-rounds">{b.negotiation_rounds}</span>
                 </td>
               </tr>
             ))}

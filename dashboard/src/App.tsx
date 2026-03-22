@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MetricsResponse } from './types'
 import { KpiCards } from './components/KpiCards'
+import { FunnelChart } from './components/FunnelChart'
+import { NegotiationScatter } from './components/NegotiationScatter'
 import { CallVolumeChart } from './components/CallVolumeChart'
+import { SavingsChart } from './components/SavingsChart'
 import { OutcomeChart } from './components/OutcomeChart'
 import { SentimentChart } from './components/SentimentChart'
 import { TopLanes } from './components/TopLanes'
-import { CostOverTimeChart } from './components/CostOverTimeChart'
 import { BookedRoutesMap } from './components/BookedRoutesMap'
 import { RecentBookingsTable } from './components/RecentBookingsTable'
+import { LoadsUtilization } from './components/LoadsUtilization'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const API_KEY = import.meta.env.VITE_API_KEY || ''
@@ -43,11 +46,11 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-100">
+      <div className="page-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-8 h-8 border-2 border-surface-300 border-t-brand-600 rounded-full"
+          className="spinner"
         />
       </div>
     )
@@ -55,62 +58,53 @@ export default function App() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-100">
-        <p className="text-surface-600 font-display">{error || 'No data available'}</p>
+      <div className="page-center">
+        <p className="error-text">{error || 'No data available'}</p>
       </div>
     )
   }
 
+  const outcomeKeys = Object.keys(data.calls_by_outcome)
+
   return (
-    <div className="min-h-screen bg-surface-100">
+    <div className="page">
       {/* Header */}
-      <header className="bg-white border-b border-surface-300 sticky top-0 z-50">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+      <header className="page-header">
+        <div className="page-container">
+          <div className="header-row">
+            <div className="header-brand">
+              <div className="header-logo">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
               </div>
               <div>
-                <h1 className="font-display font-700 text-surface-900 text-[15px] tracking-tight leading-none">
-                  Acme Logistics
-                </h1>
-                <p className="text-[11px] font-mono text-surface-500 tracking-wide uppercase mt-0.5">
-                  Command Center
-                </p>
+                <h1 className="header-title">Acme Logistics</h1>
+                <p className="header-subtitle">Command Center</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium font-mono">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <div className="header-actions">
+              <span className="badge-live">
+                <span className="badge-live-dot" />
                 LIVE
               </span>
-              <span className="text-xs text-surface-500 font-mono">
+              <span className="header-date">
                 {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 -mb-px">
+          <div className="tab-bar">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2.5 text-sm font-medium font-display transition-colors relative ${
-                  activeTab === tab.key
-                    ? 'text-brand-600'
-                    : 'text-surface-500 hover:text-surface-700'
-                }`}
+                className={`tab-btn ${activeTab === tab.key ? 'tab-btn--active' : 'tab-btn--inactive'}`}
               >
                 {tab.label}
                 {activeTab === tab.key && (
-                  <motion.div
-                    layoutId="tab-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full"
-                  />
+                  <motion.div layoutId="tab-indicator" className="tab-indicator" />
                 )}
               </button>
             ))}
@@ -119,7 +113,7 @@ export default function App() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-[1440px] mx-auto px-6 lg:px-10 py-8">
+      <main className="page-main">
         <AnimatePresence mode="wait">
           {activeTab === 'metrics' && (
             <motion.div
@@ -131,15 +125,17 @@ export default function App() {
               className="space-y-6"
             >
               <KpiCards data={data} />
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CallVolumeChart data={data.call_volume_over_time} />
-                <CostOverTimeChart data={data.cost_over_time} />
+              <div className="grid-2col">
+                <FunnelChart data={data.call_funnel} />
+                <NegotiationScatter data={data.negotiation_details} />
               </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid-2col">
+                <CallVolumeChart data={data.call_volume_over_time} outcomes={outcomeKeys} />
+                <SavingsChart data={data.savings_over_time} />
+              </div>
+              <div className="grid-2col">
                 <OutcomeChart data={data.calls_by_outcome} />
-                <SentimentChart data={data.sentiment_distribution} />
+                <SentimentChart data={data.sentiment_by_outcome} />
               </div>
             </motion.div>
           )}
@@ -161,7 +157,7 @@ export default function App() {
                   <TopLanes data={data.top_lanes} />
                 </div>
               </div>
-
+              <LoadsUtilization data={data.loads_utilization} />
               <RecentBookingsTable data={data.recent_bookings} />
             </motion.div>
           )}

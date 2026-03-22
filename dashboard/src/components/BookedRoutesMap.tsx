@@ -42,7 +42,6 @@ interface Props {
 export function BookedRoutesMap({ data }: Props) {
   const maxCount = Math.max(...data.map((r) => r.count), 1)
 
-  // Collect unique cities that appear in routes
   const activeCities = new Set<string>()
   data.forEach((r) => {
     activeCities.add(r.origin)
@@ -52,7 +51,7 @@ export function BookedRoutesMap({ data }: Props) {
   return (
     <Card delay={0.45} className="overflow-hidden w-full">
       <CardHeader title="Booked Routes" subtitle="Origin-destination pairs for booked loads — thicker lines indicate more bookings on that lane" />
-      <div className="px-0 pb-0">
+      <div className="map-body">
         <ComposableMap
           projection="geoAlbersUsa"
           projectionConfig={{ scale: 900 }}
@@ -79,7 +78,6 @@ export function BookedRoutesMap({ data }: Props) {
             }
           </Geographies>
 
-          {/* Route lines */}
           {data.map((route, i) => {
             const from = CITY_COORDS[route.origin]
             const to = CITY_COORDS[route.destination]
@@ -99,7 +97,6 @@ export function BookedRoutesMap({ data }: Props) {
             )
           })}
 
-          {/* City markers */}
           {Array.from(activeCities).map((city) => {
             const coords = CITY_COORDS[city]
             if (!coords) return null

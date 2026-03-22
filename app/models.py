@@ -90,16 +90,22 @@ class CallLogResponse(BaseModel):
 
 class MetricsResponse(BaseModel):
     total_calls: int = 0
+    total_bookings: int = 0
     total_minutes: float = 0.0
+    total_savings: float = 0.0
     cost_wtd: float = 0.0
     calls_by_outcome: dict = {}
     booking_rate: float = 0.0
     avg_negotiation_rounds: float = 0.0
     avg_discount_pct: float = 0.0
     sentiment_distribution: dict = {}
+    sentiment_by_outcome: dict = {}
+    call_funnel: list[dict] = []
+    negotiation_details: list[dict] = []
     top_lanes: list[dict] = []
     loads_utilization: dict = {}
     call_volume_over_time: list[dict] = []
+    savings_over_time: list[dict] = []
     cost_over_time: list[dict] = []
     booked_routes: list[dict] = []
     recent_bookings: list[dict] = []

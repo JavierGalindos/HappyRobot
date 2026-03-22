@@ -24,9 +24,9 @@ export function OutcomeChart({ data }: { data: Record<string, number> }) {
 
   return (
     <Card delay={0.4}>
-      <CardHeader title="Calls by Outcome" subtitle="Distribution across all calls" />
-      <div className="flex items-center gap-4 px-6 pb-5 pt-2">
-        <div className="w-48 h-48 flex-shrink-0">
+      <CardHeader title="Call Summary" subtitle="Distribution across all calls" />
+      <div className="outcome-body">
+        <div className="outcome-pie-wrap">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -72,21 +72,21 @@ export function OutcomeChart({ data }: { data: Record<string, number> }) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-1 space-y-2.5">
+        <div className="outcome-legend">
           {chartData.map((entry) => (
-            <div key={entry.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div key={entry.name} className="outcome-legend-row">
+              <div className="outcome-legend-left">
                 <div
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="outcome-dot"
                   style={{ backgroundColor: OUTCOME_COLORS[entry.name] || '#9ca3b4' }}
                 />
-                <span className="text-sm text-surface-700">
+                <span className="outcome-label">
                   {OUTCOME_LABELS[entry.name] || entry.name}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-mono font-medium text-surface-900">{entry.value}</span>
-                <span className="text-[11px] font-mono text-surface-400 w-10 text-right">
+              <div className="outcome-legend-right">
+                <span className="outcome-count">{entry.value}</span>
+                <span className="outcome-pct">
                   {total > 0 ? Math.round((entry.value / total) * 100) : 0}%
                 </span>
               </div>

@@ -39,9 +39,9 @@ export function ChartTooltip({
   const value = payload[0].value
   const displayValue = valueFormatter ? valueFormatter(value) : value
   return (
-    <div className="bg-white rounded-xl border border-surface-200 shadow-lg px-4 py-3">
+    <div className="chart-tooltip">
       {displayLabel && (
-        <p className="text-[11px] font-mono text-surface-500 mb-1">{displayLabel}</p>
+        <p className="chart-tooltip-label mb-1">{displayLabel}</p>
       )}
       <p className="text-lg font-display font-bold text-surface-900">
         {displayValue}{' '}

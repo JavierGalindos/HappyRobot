@@ -1,6 +1,14 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts'
 import { Card, CardHeader } from './Card'
-import { ChartTooltip } from '../utils'
 
 const SENTIMENT_COLORS: Record<string, string> = {
   positive: '#10b981',
@@ -8,70 +16,83 @@ const SENTIMENT_COLORS: Record<string, string> = {
   negative: '#f43f5e',
 }
 
-const SENTIMENT_LABELS: Record<string, string> = {
-  positive: 'Positive',
-  neutral: 'Neutral',
-  negative: 'Negative',
+const OUTCOME_LABELS: Record<string, string> = {
+  booked: 'Booked',
+  rejected: 'Rejected',
+  no_match: 'No Match',
+  no_agreement: 'No Agree.',
+  not_authorized: 'Not Auth.',
 }
 
-export function SentimentChart({ data }: { data: Record<string, number> }) {
-  const chartData = Object.entries(data).map(([name, value]) => ({ name, value }))
-  const total = chartData.reduce((sum, d) => sum + d.value, 0)
+interface Props {
+  data: Record<string, Record<string, number>>
+}
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) {
+  if (!active || !payload?.length) return null
+  const total = payload.reduce((s: number, e: any) => s + (e.value || 0), 0)
+  return (
+    <div className="chart-tooltip">
+      <p className="chart-tooltip-label">
+        {OUTCOME_LABELS[label || ''] || label}
+      </p>
+      {payload.map((entry: any) => (
+        <div key={entry.dataKey} className="chart-tooltip-row">
+          <div className="flex items-center gap-2">
+            <div className="chart-tooltip-dot" style={{ backgroundColor: entry.color }} />
+            <span className="chart-tooltip-name capitalize">{entry.dataKey}</span>
+          </div>
+          <span className="chart-tooltip-val">{entry.value}</span>
+        </div>
+      ))}
+      <div className="chart-tooltip-divider">
+        <span className="chart-tooltip-total">Total: {total}</span>
+      </div>
+    </div>
+  )
+}
+
+export function SentimentChart({ data }: Props) {
+  const chartData = Object.entries(data).map(([outcome, sentiments]) => ({
+    outcome,
+    positive: sentiments.positive || 0,
+    neutral: sentiments.neutral || 0,
+    negative: sentiments.negative || 0,
+  }))
+
+  chartData.sort(
+    (a, b) =>
+      b.positive + b.neutral + b.negative - (a.positive + a.neutral + a.negative)
+  )
 
   return (
-    <Card delay={0.45}>
-      <CardHeader title="Carrier Sentiment" subtitle="Caller tone classification" />
-      <div className="flex items-center gap-4 px-6 pb-5 pt-2">
-        <div className="w-48 h-48 flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={52}
-                outerRadius={78}
-                paddingAngle={3}
-                dataKey="value"
-                strokeWidth={0}
-              >
-                {chartData.map((entry) => (
-                  <Cell key={entry.name} fill={SENTIMENT_COLORS[entry.name] || '#9ca3b4'} />
-                ))}
-              </Pie>
-              <Tooltip
-                content={
-                  <ChartTooltip
-                    labelFormatter={(name) => SENTIMENT_LABELS[name] || name}
-                    valueSuffix="calls"
-                  />
-                }
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex-1 space-y-4">
-          {chartData.map((entry) => {
-            const pct = total > 0 ? Math.round((entry.value / total) * 100) : 0
-            return (
-              <div key={entry.name} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-surface-700 capitalize">{entry.name}</span>
-                  <span className="text-sm font-mono font-medium text-surface-900">{pct}%</span>
-                </div>
-                <div className="h-2 bg-surface-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${pct}%`,
-                      backgroundColor: SENTIMENT_COLORS[entry.name] || '#9ca3b4',
-                    }}
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </div>
+    <Card delay={0.5}>
+      <CardHeader title="Sentiment Summary" subtitle="Carrier tone breakdown per call result" />
+      <div className="card-body-chart">
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="outcome"
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v) => OUTCOME_LABELS[v] || v}
+              dy={8}
+            />
+            <YAxis axisLine={false} tickLine={false} dx={-8} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f3f7' }} />
+            <Legend
+              verticalAlign="top"
+              height={30}
+              formatter={(value: string) => (
+                <span className="legend-label capitalize">{value}</span>
+              )}
+            />
+            <Bar dataKey="positive" stackId="a" fill={SENTIMENT_COLORS.positive} radius={[0, 0, 0, 0]} />
+            <Bar dataKey="neutral" stackId="a" fill={SENTIMENT_COLORS.neutral} radius={[0, 0, 0, 0]} />
+            <Bar dataKey="negative" stackId="a" fill={SENTIMENT_COLORS.negative} radius={[4, 4, 0, 0]} barSize={32} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </Card>
   )
