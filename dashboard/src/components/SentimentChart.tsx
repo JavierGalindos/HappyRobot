@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardHeader } from './Card'
+import { ChartTooltip } from '../utils'
 
 const SENTIMENT_COLORS: Record<string, string> = {
   positive: '#10b981',
@@ -7,23 +8,10 @@ const SENTIMENT_COLORS: Record<string, string> = {
   negative: '#f43f5e',
 }
 
-const SENTIMENT_ICONS: Record<string, string> = {
+const SENTIMENT_LABELS: Record<string, string> = {
   positive: 'Positive',
   neutral: 'Neutral',
   negative: 'Negative',
-}
-
-function CustomTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null
-  const { name, value } = payload[0]
-  return (
-    <div className="bg-white rounded-xl border border-surface-200 shadow-lg px-4 py-3">
-      <p className="text-[11px] font-mono text-surface-500 mb-1">{SENTIMENT_ICONS[name] || name}</p>
-      <p className="text-lg font-display font-bold text-surface-900">
-        {value} <span className="text-xs font-normal text-surface-400">calls</span>
-      </p>
-    </div>
-  )
 }
 
 export function SentimentChart({ data }: { data: Record<string, number> }) {
@@ -51,7 +39,14 @@ export function SentimentChart({ data }: { data: Record<string, number> }) {
                   <Cell key={entry.name} fill={SENTIMENT_COLORS[entry.name] || '#9ca3b4'} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip
+                content={
+                  <ChartTooltip
+                    labelFormatter={(name) => SENTIMENT_LABELS[name] || name}
+                    valueSuffix="calls"
+                  />
+                }
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

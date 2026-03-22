@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardHeader } from './Card'
+import { ChartTooltip } from '../utils'
 
 const OUTCOME_COLORS: Record<string, string> = {
   booked: '#10b981',
@@ -15,19 +16,6 @@ const OUTCOME_LABELS: Record<string, string> = {
   no_match: 'No Match',
   no_agreement: 'No Agreement',
   not_authorized: 'Not Authorized',
-}
-
-function CustomTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null
-  const { name, value } = payload[0]
-  return (
-    <div className="bg-white rounded-xl border border-surface-200 shadow-lg px-4 py-3">
-      <p className="text-[11px] font-mono text-surface-500 mb-1">{OUTCOME_LABELS[name] || name}</p>
-      <p className="text-lg font-display font-bold text-surface-900">
-        {value} <span className="text-xs font-normal text-surface-400">calls</span>
-      </p>
-    </div>
-  )
 }
 
 export function OutcomeChart({ data }: { data: Record<string, number> }) {
@@ -55,7 +43,14 @@ export function OutcomeChart({ data }: { data: Record<string, number> }) {
                   <Cell key={entry.name} fill={OUTCOME_COLORS[entry.name] || '#9ca3b4'} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip
+                content={
+                  <ChartTooltip
+                    labelFormatter={(name) => OUTCOME_LABELS[name] || name}
+                    valueSuffix="calls"
+                  />
+                }
+              />
               <text
                 x="50%"
                 y="48%"

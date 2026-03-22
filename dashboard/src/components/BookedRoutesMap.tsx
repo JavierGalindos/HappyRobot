@@ -50,19 +50,21 @@ export function BookedRoutesMap({ data }: Props) {
   })
 
   return (
-    <Card delay={0.45} className="overflow-hidden">
+    <Card delay={0.45} className="overflow-hidden w-full">
       <CardHeader title="Booked Routes" subtitle="Origin-destination pairs for booked loads — thicker lines indicate more bookings on that lane" />
-      <div className="px-2 pb-2">
+      <div className="px-0 pb-0">
         <ComposableMap
           projection="geoAlbersUsa"
-          projectionConfig={{ scale: 1000 }}
+          projectionConfig={{ scale: 900 }}
+          width={800}
+          height={480}
           style={{ width: '100%', height: 'auto' }}
         >
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
               geographies.map((geo) => (
                 <Geography
-                  key={geo.rpiproperties?.name || geo.id}
+                  key={geo.properties?.name || geo.id}
                   geography={geo}
                   fill="#f1f3f7"
                   stroke="#d1d5de"

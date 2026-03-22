@@ -1,4 +1,5 @@
 import { Card, CardHeader } from './Card'
+import { formatTimestamp, formatTime } from '../utils'
 
 interface Booking {
   timestamp: string
@@ -12,16 +13,6 @@ interface Booking {
 
 interface Props {
   data: Booking[]
-}
-
-function formatDate(ts: string) {
-  const d = new Date(ts)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function formatTime(ts: string) {
-  const d = new Date(ts)
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
 export function RecentBookingsTable({ data }: Props) {
@@ -47,7 +38,7 @@ export function RecentBookingsTable({ data }: Props) {
                 className="border-b border-surface-100 last:border-0 hover:bg-surface-100/50 transition-colors"
               >
                 <td className="py-2.5 pr-4">
-                  <p className="text-xs font-medium text-surface-800">{formatDate(b.timestamp)}</p>
+                  <p className="text-xs font-medium text-surface-800">{formatTimestamp(b.timestamp)}</p>
                   <p className="text-[10px] text-surface-400 font-mono">{formatTime(b.timestamp)}</p>
                 </td>
                 <td className="py-2.5 pr-4">

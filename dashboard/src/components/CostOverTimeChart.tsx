@@ -8,30 +8,10 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Card, CardHeader } from './Card'
+import { formatDate, formatCurrency, ChartTooltip } from '../utils'
 
 interface Props {
   data: Array<{ date: string; cost: number }>
-}
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function formatCurrency(value: number) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-}
-
-function CustomTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-white rounded-xl border border-surface-200 shadow-lg px-4 py-3">
-      <p className="text-[11px] font-mono text-surface-500 mb-1">{formatDate(label)}</p>
-      <p className="text-lg font-display font-bold text-surface-900">
-        {formatCurrency(payload[0].value)} <span className="text-xs font-normal text-surface-400">paid</span>
-      </p>
-    </div>
-  )
 }
 
 export function CostOverTimeChart({ data }: Props) {
@@ -61,7 +41,15 @@ export function CostOverTimeChart({ data }: Props) {
               dx={-8}
               tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={
+                <ChartTooltip
+                  labelFormatter={formatDate}
+                  valueFormatter={formatCurrency}
+                  valueSuffix="paid"
+                />
+              }
+            />
             <Area
               type="monotone"
               dataKey="cost"

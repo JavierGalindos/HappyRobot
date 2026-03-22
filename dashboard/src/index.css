@@ -22,7 +22,7 @@ body::before {
   background-repeat: repeat;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.4;
+  opacity: 0.25;
 }
 
 /* Custom scrollbar */

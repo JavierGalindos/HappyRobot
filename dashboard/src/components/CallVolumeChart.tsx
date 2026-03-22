@@ -8,26 +8,10 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Card, CardHeader } from './Card'
+import { formatDate, ChartTooltip } from '../utils'
 
 interface Props {
   data: Array<{ date: string; count: number }>
-}
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function CustomTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-white rounded-xl border border-surface-200 shadow-lg px-4 py-3">
-      <p className="text-[11px] font-mono text-surface-500 mb-1">{formatDate(label)}</p>
-      <p className="text-lg font-display font-bold text-surface-900">
-        {payload[0].value} <span className="text-xs font-normal text-surface-400">calls</span>
-      </p>
-    </div>
-  )
 }
 
 export function CallVolumeChart({ data }: Props) {
@@ -52,7 +36,14 @@ export function CallVolumeChart({ data }: Props) {
               dy={8}
             />
             <YAxis axisLine={false} tickLine={false} dx={-8} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={
+                <ChartTooltip
+                  labelFormatter={formatDate}
+                  valueSuffix="calls"
+                />
+              }
+            />
             <Area
               type="monotone"
               dataKey="count"

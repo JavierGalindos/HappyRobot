@@ -6,7 +6,6 @@ import { CallVolumeChart } from './components/CallVolumeChart'
 import { OutcomeChart } from './components/OutcomeChart'
 import { SentimentChart } from './components/SentimentChart'
 import { TopLanes } from './components/TopLanes'
-import { LoadsUtilization } from './components/LoadsUtilization'
 import { CostOverTimeChart } from './components/CostOverTimeChart'
 import { BookedRoutesMap } from './components/BookedRoutesMap'
 import { RecentBookingsTable } from './components/RecentBookingsTable'
@@ -15,6 +14,11 @@ const API_BASE = import.meta.env.VITE_API_URL || ''
 const API_KEY = import.meta.env.VITE_API_KEY || ''
 
 type Tab = 'metrics' | 'loads'
+
+const tabs: { key: Tab; label: string }[] = [
+  { key: 'metrics', label: 'Metrics' },
+  { key: 'loads', label: 'Loads' },
+]
 
 export default function App() {
   const [data, setData] = useState<MetricsResponse | null>(null)
@@ -56,11 +60,6 @@ export default function App() {
       </div>
     )
   }
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'metrics', label: 'Metrics' },
-    { key: 'loads', label: 'Loads' },
-  ]
 
   return (
     <div className="min-h-screen bg-surface-100">
@@ -154,13 +153,13 @@ export default function App() {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              <BookedRoutesMap data={data.booked_routes} />
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+                <div className="lg:col-span-3 flex">
+                  <BookedRoutesMap data={data.booked_routes} />
+                </div>
+                <div className="lg:col-span-2 flex">
                   <TopLanes data={data.top_lanes} />
                 </div>
-                <LoadsUtilization data={data.loads_utilization} />
               </div>
 
               <RecentBookingsTable data={data.recent_bookings} />
