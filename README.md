@@ -54,8 +54,17 @@ Carrier Call (HappyRobot Web Call)
 │       ├── s3.py            # S3 read/write helpers
 │       └── athena.py        # Metrics aggregation from S3 call logs
 ├── dashboard/               # React app (Vite + TS)
-├── data/
-│   └── loads.json           # 15 sample loads
+│   └── src/
+│       ├── App.tsx             # Main app with data fetching
+│       └── components/
+│           ├── KpiCards.tsx           # Key metrics cards
+│           ├── CallVolumeChart.tsx    # Call volume over time
+│           ├── OutcomeChart.tsx       # Calls by outcome
+│           ├── SentimentChart.tsx     # Carrier sentiment distribution
+│           ├── CostOverTimeChart.tsx  # Revenue/cost trends
+│           ├── TopLanes.tsx           # Top origin-destination pairs
+│           ├── BookedRoutesMap.tsx    # Geographic route visualization
+│           └── RecentBookingsTable.tsx # Latest bookings table
 ├── infra/                   # AWS CDK stacks
 │   ├── lib/
 │   │   ├── config.ts        # AWS account, region, resource names
@@ -63,7 +72,9 @@ Carrier Call (HappyRobot Web Call)
 │   │   └── dashboard-stack.ts # Dashboard (S3 + CloudFront)
 │   └── bin/infra.ts         # CDK app entry point
 ├── bin/
-│   └── deploy.sh            # One-command deploy script
+│   ├── deploy.sh            # One-command deploy script
+│   ├── deploy-dashboard.sh  # Build + deploy dashboard to S3/CloudFront
+│   └── run-dashboard.sh     # Run dashboard locally
 ├── Dockerfile               # Lambda container image
 ├── docker-compose.yml       # Local dev
 ├── requirements.txt
@@ -138,6 +149,14 @@ This will:
 - Deploy both stacks (API infra + dashboard)
 - Output the API URL, API key ID, and dashboard URL
 
+### Deploy Dashboard Only
+
+Build the React app, sync to S3, and invalidate the CloudFront cache:
+
+```bash
+./bin/deploy-dashboard.sh
+```
+
 ### Deploy Individual Stacks
 
 ```bash
@@ -162,4 +181,4 @@ aws apigateway get-api-key --api-key <ApiKeyId> --include-value --query 'value' 
 ## Deployed URLs
 
 - **API:** https://qpklvz83y9.execute-api.us-east-1.amazonaws.com/prod/
-- **Dashboard:** TBD (deploy `HappyRobotDashboardStack`)
+- **Dashboard:** https://d16gzu2xhnxo9q.cloudfront.net
