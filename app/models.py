@@ -76,6 +76,7 @@ class CallLogRequest(BaseModel):
     agreed_price: float | None = None
     carrier_sentiment: str | None = None  # "positive", "neutral", "negative"
     negotiation_rounds: int = 0
+    duration_minutes: float | None = None
     extracted_data: dict | None = None
     timestamp: str | None = None
 
@@ -89,6 +90,8 @@ class CallLogResponse(BaseModel):
 
 class MetricsResponse(BaseModel):
     total_calls: int = 0
+    total_minutes: float = 0.0
+    cost_wtd: float = 0.0
     calls_by_outcome: dict = {}
     booking_rate: float = 0.0
     avg_negotiation_rounds: float = 0.0
@@ -97,3 +100,6 @@ class MetricsResponse(BaseModel):
     top_lanes: list[dict] = []
     loads_utilization: dict = {}
     call_volume_over_time: list[dict] = []
+    cost_over_time: list[dict] = []
+    booked_routes: list[dict] = []
+    recent_bookings: list[dict] = []

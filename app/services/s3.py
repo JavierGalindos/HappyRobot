@@ -10,7 +10,7 @@ _s3_client = None
 _loads_cache: list[dict] | None = None
 
 
-def _get_s3_client():
+def get_s3_client():
     global _s3_client
     if _s3_client is None:
         _s3_client = boto3.client("s3")
@@ -22,7 +22,7 @@ def load_loads_data() -> list[dict]:
     if _loads_cache is not None:
         return _loads_cache
 
-    s3 = _get_s3_client()
+    s3 = get_s3_client()
     resp = s3.get_object(Bucket=settings.s3_bucket, Key=settings.loads_s3_key)
     _loads_cache = json.loads(resp["Body"].read())
     return _loads_cache
@@ -34,7 +34,7 @@ def write_call_log(call_log: dict) -> str:
     call_id = call_log.get("call_id", now.strftime("%Y%m%d%H%M%S"))
     key = f"{settings.call_logs_prefix}{date_partition}/{call_id}.json"
 
-    s3 = _get_s3_client()
+    s3 = get_s3_client()
     s3.put_object(
         Bucket=settings.s3_bucket,
         Key=key,
@@ -54,7 +54,7 @@ def book_load(load_id: str, call_id: str, agreed_price: float) -> bool:
     }
     key = f"{settings.booked_loads_prefix}{load_id}.json"
 
-    s3 = _get_s3_client()
+    s3 = get_s3_client()
     try:
         s3.put_object(
             Bucket=settings.s3_bucket,
@@ -72,7 +72,7 @@ def book_load(load_id: str, call_id: str, agreed_price: float) -> bool:
 
 def get_booked_load_ids() -> set[str]:
     """Return set of load IDs that have been booked."""
-    s3 = _get_s3_client()
+    s3 = get_s3_client()
     booked = set()
     paginator = s3.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=settings.s3_bucket, Prefix=settings.booked_loads_prefix):

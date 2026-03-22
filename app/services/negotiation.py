@@ -1,10 +1,8 @@
 from app.config import settings
 
-MARGIN = settings.initial_offer_margin
-
 
 def evaluate_offer(loadboard_rate: float, carrier_offer: float, round_num: int) -> dict:
-    offered_rate = round(loadboard_rate * MARGIN)
+    offered_rate = round(loadboard_rate * settings.initial_offer_margin)
 
     # At or below our initial offer — always accept (best case for us)
     if carrier_offer <= offered_rate:
