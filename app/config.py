@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     s3_bucket: str = "happyrobot-carrier-sales"
     loads_s3_key: str = "data/loads.json"
     call_logs_prefix: str = "call-logs/"
+    booked_loads_prefix: str = "booked-loads/"
+    initial_offer_margin: float = 0.85
     environment: str = "local"
 
     model_config = {"env_prefix": "HR_", "env_file": ".env"}

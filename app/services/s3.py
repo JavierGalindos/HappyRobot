@@ -1,8 +1,8 @@
 import json
-import os
 from datetime import datetime, timezone
 
 import boto3
+from botocore.exceptions import ClientError
 
 from app.config import settings
 
@@ -22,15 +22,9 @@ def load_loads_data() -> list[dict]:
     if _loads_cache is not None:
         return _loads_cache
 
-    if settings.environment == "local":
-        local_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "loads.json")
-        with open(local_path) as f:
-            _loads_cache = json.load(f)
-    else:
-        s3 = _get_s3_client()
-        resp = s3.get_object(Bucket=settings.s3_bucket, Key=settings.loads_s3_key)
-        _loads_cache = json.loads(resp["Body"].read())
-
+    s3 = _get_s3_client()
+    resp = s3.get_object(Bucket=settings.s3_bucket, Key=settings.loads_s3_key)
+    _loads_cache = json.loads(resp["Body"].read())
     return _loads_cache
 
 
@@ -40,19 +34,49 @@ def write_call_log(call_log: dict) -> str:
     call_id = call_log.get("call_id", now.strftime("%Y%m%d%H%M%S"))
     key = f"{settings.call_logs_prefix}{date_partition}/{call_id}.json"
 
-    if settings.environment == "local":
-        local_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data", "call_logs", date_partition)
-        os.makedirs(local_dir, exist_ok=True)
-        local_path = os.path.join(local_dir, f"{call_id}.json")
-        with open(local_path, "w") as f:
-            json.dump(call_log, f, indent=2)
-    else:
-        s3 = _get_s3_client()
+    s3 = _get_s3_client()
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+        Body=json.dumps(call_log),
+        ContentType="application/json",
+    )
+    return call_id
+
+
+def book_load(load_id: str, call_id: str, agreed_price: float) -> bool:
+    """Atomically book a load. Returns True if successful, False if already booked."""
+    booking = {
+        "load_id": load_id,
+        "call_id": call_id,
+        "agreed_price": agreed_price,
+        "booked_at": datetime.now(timezone.utc).isoformat(),
+    }
+    key = f"{settings.booked_loads_prefix}{load_id}.json"
+
+    s3 = _get_s3_client()
+    try:
         s3.put_object(
             Bucket=settings.s3_bucket,
             Key=key,
-            Body=json.dumps(call_log),
+            Body=json.dumps(booking),
             ContentType="application/json",
+            IfNoneMatch="*",
         )
+        return True
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "PreconditionFailed":
+            return False
+        raise
 
-    return call_id
+
+def get_booked_load_ids() -> set[str]:
+    """Return set of load IDs that have been booked."""
+    s3 = _get_s3_client()
+    booked = set()
+    paginator = s3.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=settings.s3_bucket, Prefix=settings.booked_loads_prefix):
+        for obj in page.get("Contents", []):
+            load_id = obj["Key"].removeprefix(settings.booked_loads_prefix).removesuffix(".json")
+            booked.add(load_id)
+    return booked

@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
+from app.config import settings
 from app.models import LoadSearchRequest, LoadSearchResponse, Load
-from app.services.s3 import load_loads_data
+from app.services.s3 import load_loads_data, get_booked_load_ids
 
 router = APIRouter(prefix="/api/loads", tags=["loads"])
 
@@ -29,5 +30,9 @@ async def search_loads(req: LoadSearchRequest):
     if req.pickup_date_end:
         results = [l for l in results if l["pickup_datetime"] <= req.pickup_date_end]
 
-    loads = [Load(**l) for l in results]
+    booked = get_booked_load_ids()
+    results = [l for l in results if l["load_id"] not in booked]
+
+    margin = settings.initial_offer_margin
+    loads = [Load(**{**l, "loadboard_rate": round(l["loadboard_rate"] * margin)}) for l in results]
     return LoadSearchResponse(loads=loads, count=len(loads))

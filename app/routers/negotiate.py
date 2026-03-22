@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.models import NegotiateRequest, NegotiateResponse
 from app.services.negotiation import evaluate_offer
-from app.services.s3 import load_loads_data
+from app.services.s3 import load_loads_data, book_load
 
 router = APIRouter(prefix="/api", tags=["negotiate"])
 
@@ -18,6 +18,15 @@ async def negotiate(req: NegotiateRequest):
         raise HTTPException(status_code=404, detail=f"Load {req.load_id} not found")
 
     result = evaluate_offer(load["loadboard_rate"], req.carrier_offer, req.round)
+
+    if result["decision"] == "accept":
+        agreed_price = req.carrier_offer
+        if not book_load(req.load_id, call_id=f"negotiate-{req.load_id}", agreed_price=agreed_price):
+            result = {
+                "decision": "reject",
+                "counter_offer": None,
+                "message": "Sorry, this load was just booked by another carrier. Let me find you another option.",
+            }
 
     return NegotiateResponse(
         load_id=req.load_id,
