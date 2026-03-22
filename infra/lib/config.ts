@@ -12,6 +12,9 @@ export const config = {
   loadsS3Key: "data/loads.json",
   callLogsPrefix: "call-logs/",
 
+  // Secrets (read from environment variables at deploy time)
+  fmcsaApiKey: process.env.HR_FMCSA_API_KEY || "",
+
   // Lambda
   lambdaMemorySize: 512,
   lambdaTimeout: 30,

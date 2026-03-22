@@ -54,6 +54,7 @@ export class InfraStack extends cdk.Stack {
         HR_S3_BUCKET: this.dataBucket.bucketName,
         HR_LOADS_S3_KEY: config.loadsS3Key,
         HR_CALL_LOGS_PREFIX: config.callLogsPrefix,
+        HR_FMCSA_API_KEY: config.fmcsaApiKey,
       },
     });
 

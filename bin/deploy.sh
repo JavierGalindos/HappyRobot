@@ -17,6 +17,16 @@ if ! finch vm status 2>/dev/null | grep -q "Running"; then
   finch vm start 2>/dev/null || true
 fi
 
+# Load secrets from .env (gitignored)
+if [ -f "$PROJECT_DIR/.env" ]; then
+  echo "Loading secrets from .env..."
+  set -a
+  source "$PROJECT_DIR/.env"
+  set +a
+else
+  echo "WARNING: No .env file found. Secrets (HR_FMCSA_API_KEY, etc.) won't be set."
+fi
+
 echo "=== Building Docker image & deploying CDK stack ==="
 
 cd "$INFRA_DIR"
