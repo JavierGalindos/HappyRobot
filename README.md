@@ -77,8 +77,7 @@ Carrier Call (HappyRobot Web Call)
 │   └── run-dashboard.sh     # Run dashboard locally
 ├── Dockerfile               # Lambda container image
 ├── docker-compose.yml       # Local dev
-├── requirements.txt
-└── agent_prompt.md          # HappyRobot agent persona & instructions
+└── requirements.txt
 ```
 
 ## API Endpoints
@@ -86,7 +85,7 @@ Carrier Call (HappyRobot Web Call)
 | Endpoint | Method | Description |
 |---|---|---|
 | `/health` | GET | Health check |
-| `/api/carrier/verify` | POST | Verify carrier MC# via FMCSA (mock mode when no API key) |
+| `/api/carrier/verify` | POST | Verify carrier MC# via FMCSA |
 | `/api/loads/search` | POST | Search loads by origin, destination, equipment, dates |
 | `/api/negotiate` | POST | Evaluate carrier offer — accept, counter, or reject |
 | `/api/calls/log` | POST | Log call outcome, sentiment, and extracted data to S3 |
@@ -94,9 +93,12 @@ Carrier Call (HappyRobot Web Call)
 
 ## Negotiation Logic
 
-- **Accept** if offer is at or below loadboard rate, or within 5% above
-- **Counter** if offer is 5–30% above loadboard rate (meet in the middle)
-- **Reject** if offer exceeds 30% above loadboard rate after 3 rounds
+- The agent opens at 85% of the loadboard rate (`initial_offer_margin = 0.85`)
+- **Accept** if carrier offer is at or below the offered rate, or within 5% above it
+- **Counter** if offer is between 5% above offered rate and 10% above loadboard rate (meet in the middle)
+- **Counter** if offer exceeds 10% above loadboard rate — counter at offered rate + 5%
+- **Reject** if offer still exceeds 10% above loadboard rate after 3 rounds
+- **Accept** on final round if offer is within 10% above loadboard rate
 - Max 3 negotiation rounds
 
 ## Setup
